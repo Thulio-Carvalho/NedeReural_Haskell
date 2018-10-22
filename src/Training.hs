@@ -26,15 +26,11 @@ manageEpoch epochAmount trainingSets testSet network = do
                                                 printEpoch epochAmount correctCnt (length testSet)
                                                 manageEpoch (epochAmount - 1) trainingSets testSet network
 
-                                                
-
 
 -- quantidade constante de minibatches
 -- tamanho constante de minibatches
 trainingEpoch :: [Sample] -> IO String
 trainingEpoch _ = return ""
-
-
 
 
 testEpoch :: [Sample] -> Int
