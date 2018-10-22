@@ -6,12 +6,12 @@ import Execution
 
 main :: IO ()
 main = do
-	option <- getLine
-	menu option
-	return ()-- action apenas para satisfazer o retoro de IO ().
+    option <- getLine
+    menu option
+    return ()-- action apenas para satisfazer o retoro de IO ().
 
 menu :: String -> IO String -- a decidir o tipo da IO Action
 menu option
-	| option == "exec" = execute
-	| option == "train" = train
-	| otherwise = return ("Opcao invalida!")
+    | option == "exec" = execute
+    | (head $ words option) == "train" = train $ read ((words option) !! 1)
+    | otherwise = return ("Opcao invalida!")
