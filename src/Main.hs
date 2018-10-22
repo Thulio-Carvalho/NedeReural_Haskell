@@ -8,7 +8,7 @@ main :: IO ()
 main = do
 	option <- getLine
 	menu option
-	return -- action apenas para satisfazer o retoro de IO ().
+	return ()-- action apenas para satisfazer o retoro de IO ().
 
 menu :: String -> IO String -- a decidir o tipo da IO Action
 menu option
