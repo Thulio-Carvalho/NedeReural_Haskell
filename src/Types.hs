@@ -6,7 +6,8 @@ module Types
  plusM,
  divideV,
  divideM,
- generateBasedOf
+ generateBasedOf,
+ isEmpty
 ) where
 
 data Data = Data {

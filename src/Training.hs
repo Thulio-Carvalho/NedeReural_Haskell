@@ -29,7 +29,7 @@ manageEpoch epochAmount trainingSets testSet network = do
 
 trainingEpoch :: [Sample] -> Data -> Data
 trainingEpoch trainingSet network = let minibatchAmount = 20 -- adequar quantidade
-                                        minibatchSize = 500 -- adequar quantidade
+                                        minibatchSize = (length trainingSet) `div` 20 -- adequar quantidade
                                         -- dar shuffle
                                         minibatches = chunksOf minibatchSize trainingSet
                                         newNetwork = manageMinibatch minibatchAmount 0 network minibatches
@@ -47,10 +47,6 @@ manageMinibatch amount counter network minibatches = if amount /= (counter + 1)
 minibatchEvaluation :: [Sample] -> Int -> Data
 minibatchEvaluation minibatch amount = Data [[]] [] [[]] []
 
--- TODO
-backpropagation :: Data -> Int -> Data
-backpropagation network expectedResult = Data [[]] [] [[]] []
-
 testEpoch :: [Sample] -> Data -> Int
 testEpoch _ _ = 5
 
@@ -58,8 +54,8 @@ testEpoch _ _ = 5
 -- esperado e retorna um Data com as modificacoes necessarias
 -- na rede
 backpropagation :: Data -> Int -> Data
-backpropagation data expected
-    | isEmpty data = error "Data is empty"
-    | expected < 0 || expected > 9 = error "Invalid expected number"
-    | otherwise = do
-        -- TODO 
+backpropagation network expected
+     | isEmpty network = error "Data is empty"
+     | expected < 0 || expected > 9 = error "Invalid expected number"
+     | otherwise = generateBasedOf network -- MUDAR, SÓ PRA RODAR
+                 -- TODO
