@@ -53,3 +53,7 @@ generateBasedOf (Data wH bH wO bO) = let whRows = length wH
                                          newWO = replicate woRows (replicate woColumns 0.0)
                                          newBO = replicate boLen 0.0
                                       in (Data newWH newBH newWO newBO)
+
+isEmpty :: Data -> Bool
+isEmpty (Data wH bH wO bO) = 
+    (null wH) || (null bH) || (null wO) || (null bO)

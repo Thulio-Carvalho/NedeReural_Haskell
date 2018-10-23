@@ -53,3 +53,13 @@ backpropagation network expectedResult = Data [[]] [] [[]] []
 
 testEpoch :: [Sample] -> Data -> Int
 testEpoch _ _ = 5
+
+-- Recebe as informacoes da rede neural, o resultado 
+-- esperado e retorna um Data com as modificacoes necessarias
+-- na rede
+backpropagation :: Data -> Int -> Data
+backpropagation data expected
+    | isEmpty data = error "Data is empty"
+    | expected < 0 || expected > 9 = error "Invalid expected number"
+    | otherwise = do
+        -- TODO 
