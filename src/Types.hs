@@ -43,13 +43,13 @@ divideM matrix constant = map (\list -> divideV list constant) matrix
 -- Cria um data repleto de valores 0.0 com as mesmas dimensoes do modelo passado por parametro
 generateBasedOf :: Data -> Data
 generateBasedOf (Data wH bH wO bO) = let whRows = length wH
-                                          whColumns = length $ wH !! 0
-                                          bhLen = length bH
-                                          woRows = length wO
-                                          woColumns = length # wO !! 0
-                                          boLen = length bO
-                                          newWH = replicate whRows (replicate whColumns 0.0)
-                                          newBH = replicate bhLen 0.0
-                                          newWO = replicate woRows (replicate woColumns 0.0)
-                                          newBO = replicate boLen 0.0
+                                         whColumns = length $ wH !! 0
+                                         bhLen = length bH
+                                         woRows = length wO
+                                         woColumns = length $ wO !! 0
+                                         boLen = length bO
+                                         newWH = replicate whRows (replicate whColumns 0.0)
+                                         newBH = replicate bhLen 0.0
+                                         newWO = replicate woRows (replicate woColumns 0.0)
+                                         newBO = replicate boLen 0.0
                                       in (Data newWH newBH newWO newBO)

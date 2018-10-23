@@ -12,40 +12,44 @@ type Image = [Float]
 type Sample = (Int, Image)
 
 train :: Int -> IO String
-train epochAmount = manageEpoch epochAmount trainingSets testSet network
-                    where   trainingSets = readTrainingSet
-                            network = initialize
-                            testSet = readTestSet
+train epochAmount = manageEpoch epochAmount trainingSet testSet network
+                -- save network
+                where   trainingSet = readTrainingSet
+                        network = initialize
+                        testSet = readTestSet
 
 manageEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
 manageEpoch 0 _ _ _ = return ""
 manageEpoch epochAmount trainingSets testSet network = do
-                                                let correctCnt = testEpoch testSet network
-                                                    trainingEpoch trainingSets network
-                                                    printEpoch epochAmount correctCnt (length testSet)
-                                                    manageEpoch (epochAmount - 1) trainingSets testSet network
+                                                let newNetwork = trainingEpoch trainingSets network
+                                                    correctCnt = testEpoch testSet newNetwork
+                                                    totalAmount = length testSet
+                                                do  return $ printEpoch epochAmount correctCnt totalAmount
+                                                    manageEpoch (epochAmount - 1) trainingSets testSet newNetwork
 
-trainingEpoch :: [Sample] -> Data -> IO String
+trainingEpoch :: [Sample] -> Data -> Data
 trainingEpoch trainingSet network = let minibatchAmount = 20 -- adequar quantidade
                                         minibatchSize = 500 -- adequar quantidade
                                         -- dar shuffle
-                                        minibatches = chunksOf minibatchSize trainingSet -- ajustar dependencias
+                                        minibatches = chunksOf minibatchSize trainingSet
                                         newNetwork = manageMinibatch minibatchAmount 0 network minibatches
-                                        -- chamar funcao de save com a nova rede
-                                        return ""
+                                    in newNetwork
 
 manageMinibatch :: Int -> Int -> Data -> [[Sample]] -> Data
-manageMinibatch x (x - 1) network _ = generateBasedOf network
-manageMinibatch amount counter network minibatches = let changes = minibatchEvaluation (minibatches !! counter) amount
-                                                     in plus (plus network changes) (manageMinibatch amount (counter - 1) network minibatches)
+manageMinibatch amount counter network minibatches = if amount /= (counter + 1) 
+                                                        then  
+                                                          let changes = minibatchEvaluation (minibatches !! counter) amount
+                                                          in plus (plus network changes) (manageMinibatch amount (counter + 1) network minibatches)
+                                                        else
+                                                          generateBasedOf network 
 
 -- TODO
-minibatchEvaluation :: [Sample] -> Data
-minibatchEvaluation minibatch = Data [[]] [] [[]] []
+minibatchEvaluation :: [Sample] -> Int -> Data
+minibatchEvaluation minibatch amount = Data [[]] [] [[]] []
 
 -- TODO
 backpropagation :: Data -> Int -> Data
 backpropagation network expectedResult = Data [[]] [] [[]] []
 
-testEpoch :: [Sample] -> Int
-testEpoch _ = 5
+testEpoch :: [Sample] -> Data -> Int
+testEpoch _ _ = 5
