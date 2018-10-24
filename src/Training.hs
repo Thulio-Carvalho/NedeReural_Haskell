@@ -38,24 +38,41 @@ trainingEpoch trainingSet network = let minibatchAmount = 20 -- adequar quantida
 manageMinibatch :: Int -> Int -> Data -> [[Sample]] -> Data
 manageMinibatch amount counter network minibatches = if amount /= (counter + 1) 
                                                         then  
-                                                          let changes = minibatchEvaluation (minibatches !! counter) amount
+                                                          let changes = minibatchEvaluation (minibatches !! counter) amount network
                                                           in plus (plus network changes) (manageMinibatch amount (counter + 1) network minibatches)
                                                         else
                                                           generateBasedOf network 
 
--- TODO
 minibatchEvaluation :: [Sample] -> Int -> Data
-minibatchEvaluation minibatch amount = Data [[]] [] [[]] []
+minibatchEvaluation minibatch amount network = let sumedDesiredChanges = manageSample minibatch amount network
+                                                   averageDesiredChanges = divide sumedDesiredChanges amount
+                                               in averageDesiredChanges
 
-testEpoch :: [Sample] -> Data -> Int
-testEpoch _ _ = 5
+manageSample :: [Sample] -> Int -> Data
+manageSample minibatch counter networkModel = if counter > 0
+                                    then
+                                        let network = feedforward (snd $ minibatch !! counter)
+                                            expectedOutput = buildExpectedOutput (fst $ minibatch !! counter)
+                                            desiredChanges = backpropagation network expectedOutput
+                                            sumChanges = generateBasedOf networkModel
+                                        in plus (plus sumChanges desiredChanges) (manageSample minibatch counter)
+                                    else
+                                        generateBasedOf networkModel
+
+buildExpectedOutput :: Int -> [Float]
+buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
+                                       in [if x == representedValue then representedValue else 0.0 | x <- indexes] 
 
 -- Recebe as informacoes da rede neural, o resultado 
 -- esperado e retorna um Data com as modificacoes necessarias
 -- na rede
-backpropagation :: Data -> Int -> Data
-backpropagation network expected
-     | isEmpty network = error "Data is empty"
-     | expected < 0 || expected > 9 = error "Invalid expected number"
-     | otherwise = generateBasedOf network -- MUDAR, SÓ PRA RODAR
+backpropagation :: Data -> [Float] -> Data
+backpropagation network expected = Data [[]] [] [[]] []
+
+--     | isEmpty network = error "Data is empty"
+--     | expected < 0 || expected > 9 = error "Invalid expected number"
+--     | otherwise = generateBasedOf network -- MUDAR, SÓ PRA RODAR
                  -- TODO
+
+testEpoch :: [Sample] -> Data -> Int
+testEpoch _ _ = 5

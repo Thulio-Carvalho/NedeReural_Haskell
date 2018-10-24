@@ -2,7 +2,8 @@
 
 module Execution
 (execute,
- initialize) where
+ initialize,
+ feedforward) where
 
 import InputOutput
 import Types
@@ -19,3 +20,6 @@ execute = return ""
 -- ou aleatorios em caso de primeira execucao.
 initialize :: Data
 initialize = Data [[]] [] [[]] []
+
+feedforward :: [Float] -> Data
+feedforward input = Data [[]] [] [[]] []
