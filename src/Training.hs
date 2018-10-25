@@ -7,33 +7,40 @@ import Execution
 import InputOutput
 import Types
 import Data.List.Split
+import System.Random
+import System.Random.Shuffle
 
 type Image = [Float]
 type Sample = (Int, Image)
 
 train :: Int -> IO String
-train epochAmount = manageTrainingEpoch epochAmount trainingSet testSet network
+train epochAmount = do 
+                let trainingSet = readTrainingSet
+                    network = initialize
+                    testSet = readTestSet
+                manageTrainingEpoch epochAmount trainingSet testSet network
                 -- save network
-                where   trainingSet = readTrainingSet
-                        network = initialize
-                        testSet = readTestSet
 
 manageTrainingEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
 manageTrainingEpoch 0 _ _ _ = return ""
-manageTrainingEpoch epochAmount trainingSets testSet network = do
-                                                let newNetwork = trainingEpoch trainingSets network
+manageTrainingEpoch epochAmount trainingSet testSet network = do
+                                                newNetwork <- trainingEpoch trainingSet network
+                                                let 
                                                     correctCnt = testEpoch testSet newNetwork
                                                     totalAmount = length testSet
                                                 do  return $ printEpoch epochAmount correctCnt totalAmount
-                                                    manageTrainingEpoch (epochAmount - 1) trainingSets testSet newNetwork
+                                                    manageTrainingEpoch (epochAmount - 1) trainingSet testSet newNetwork
 
-trainingEpoch :: [Sample] -> Data -> Data
-trainingEpoch trainingSet network = let minibatchAmount = 20 -- adequar quantidade
-                                        minibatchSize = (length trainingSet) `div` 20 -- adequar quantidade
-                                        -- dar shuffle
-                                        minibatches = chunksOf minibatchSize trainingSet
-                                        newNetwork = manageMinibatch minibatchAmount 0 network minibatches
-                                    in newNetwork
+trainingEpoch :: [Sample] -> Data -> IO Data
+trainingEpoch trainingSet network = do
+                                standardGenerator <- getStdGen
+                                let trainingSize = length trainingSet
+                                    shuffledTrainingSet = shuffle' trainingSet trainingSize standardGenerator
+                                    minibatchAmount = 20 -- adequar quantidade
+                                    minibatchSize = trainingSize `div` 20 -- adequar quantidade
+                                    minibatches = chunksOf minibatchSize shuffledTrainingSet
+                                    newNetwork = manageMinibatch minibatchAmount 0 network minibatches
+                                return newNetwork
 
 manageMinibatch :: Int -> Int -> Data -> [[Sample]] -> Data
 manageMinibatch amount counter network minibatches = if amount /= (counter + 1) 
