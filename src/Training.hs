@@ -73,14 +73,19 @@ buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
 -- Recebe as informacoes da rede neural, o resultado 
 -- esperado e retorna um Data com as modificacoes necessarias
 -- na rede
+-- N = network, E = expected list
 backpropagation :: Data -> [Float] -> Data
-backpropagation network expectedOutput = Data [[]] [] [] [] [[]] [] [] []
+backpropagation n e
+    | isEmpty n = error "Backpropagation error: Data is empty"
+    | length e /= 10 = error"Backpropagation error: expectedOutput list is invalid"
+    | otherwise = let outputError = computeOutputError (aOutput n) e (zetaOutput n)
+                  in n
 
---     | isEmpty network = error "Data is empty"
---     | expected < 0 || expected > 9 = error "Invalid expected number"
---     | otherwise = generateBasedOf network -- MUDAR, SÓ PRA RODAR
-                 -- TODO
-
+-- Gera o vetor de erro da camada output, recebe
+-- as ativacoes do output atual, as ativacoes esperadas 
+-- e a lista zeta do output
+computeOutputError :: [Float] -> [Float] -> [Float] -> [Float]
+computeOutputError a e z = hadamardV a (sigV' z)
 
 testEpoch :: [Sample] -> Data -> Int
 testEpoch testSet network = manageEpoch testSet network (length testSet)

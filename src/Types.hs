@@ -48,6 +48,19 @@ hadamardV list1 list2 = zipWith (*) list1 list2
 hadamardM :: (Num a) => [[a]] -> [[a]] -> [[a]]
 hadamardM matrix1 matrix2 = zipWith hadamardV matrix1 matrix2
 
+scalarProduct :: (Num a) => [a] -> [a] -> a
+scalarProduct list1 list2 = sum $ map (*) list1 list2
+
+getElems :: [Int] -> Int -> Int -> [Int]
+getElems [] _ _ = []
+getElems (x:xs) i size
+    | i `mod` size == 0 = x:(getElems xs (i + 1) size)
+    | otherwise = getElems xs (i + 1) size
+
+foo :: [[Int]] -> [Int]
+foo [] = []
+foo (x:xs) = x ++ (foo xs)
+
 -- Efetua divisao por escalar em um dado vetor
 divideV :: (Num a, Fractional a) => [a] -> a -> [a]
 divideV list constant = map (/constant) list
@@ -55,6 +68,18 @@ divideV list constant = map (/constant) list
 -- Efetua divisao por escalar em uma dada matriz
 divideM :: (Num a, Fractional a) => [[a]] -> a -> [[a]]
 divideM matrix constant = map (\list -> divideV list constant) matrix
+
+sig :: Float -> Float
+sig x = 1.0 - (1.0 + exp(-x))
+
+sig' :: Float -> Float
+sig' x = sig x * (1 - sig x) 
+
+sigV :: [Float] -> [Float]
+sigV l = [sig x | x <- l]
+
+sigV' :: [Float] -> [Float]
+sigV' l = [sig' x | x <- l]
 
 -- Cria um data repleto de valores 0.0 com as mesmas dimensoes do modelo passado por parametro
 generateBasedOf :: Data -> Data
