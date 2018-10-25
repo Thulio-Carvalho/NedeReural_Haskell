@@ -48,6 +48,19 @@ hadamardV list1 list2 = zipWith (*) list1 list2
 hadamardM :: (Num a) => [[a]] -> [[a]] -> [[a]]
 hadamardM matrix1 matrix2 = zipWith hadamardV matrix1 matrix2
 
+scalarProduct :: (Num a) => [a] -> [a] -> a
+scalarProduct list1 list2 = sum $ map (*) list1 list2
+
+getElems :: [Int] -> Int -> Int -> [Int]
+getElems [] _ _ = []
+getElems (x:xs) i size
+    | i `mod` size == 0 = x:(getElems xs (i + 1) size)
+    | otherwise = getElems xs (i + 1) size
+
+foo :: [[Int]] -> [Int]
+foo [] = []
+foo (x:xs) = x ++ (foo xs)
+
 -- Efetua divisao por escalar em um dado vetor
 divideV :: (Num a, Fractional a) => [a] -> a -> [a]
 divideV list constant = map (/constant) list
