@@ -38,6 +38,14 @@ plusV list1 list2 = zipWith (+) list1 list2
 plusM :: (Num a) => [[a]] -> [[a]] -> [[a]]
 plusM matrix1 matrix2 = zipWith plusV matrix1 matrix2
 
+-- Efetua hadamard entre dois vetores
+hadamardV :: (Num a) => [a] -> [a] -> [a]
+hadamardV list1 list2 = zipWith (*) list1 list2
+
+-- Efetua hadamard entre duas matrizes
+hadamardM :: (Num a) => [[a]] -> [[a]] -> [[a]]
+hadamardM matrix1 matrix2 = zipWith hadamardV matrix1 matrix2
+
 -- Efetua divisao por escalar em um dado vetor
 divideV :: (Num a, Fractional a) => [a] -> a -> [a]
 divideV list constant = map (/constant) list
