@@ -15,10 +15,10 @@ type Sample = (Int, Image)
 
 train :: Int -> IO String
 train epochAmount = do 
-                let trainingSet = readTrainingSet
-                    network = initialize
-                    testSet = readTestSet
-                manageTrainingEpoch epochAmount trainingSet testSet network
+                    trainingSet <- getTraining
+                    testSet <- getTest
+                    let network = initialize
+                    manageTrainingEpoch epochAmount trainingSet testSet network
                 -- save network
 
 manageTrainingEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
