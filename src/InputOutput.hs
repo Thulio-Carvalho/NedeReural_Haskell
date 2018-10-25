@@ -6,14 +6,18 @@ module InputOutput
  readIn,
  writeIn,
  isEmptyFile,
+ definitiveAnswer,
  printEpoch
  ) where
 
 import Data.List
 import Data.Char
+import Data.Maybe
 import System.Directory
 import System.Random
 import Types
+import Text.Printf
+
 
 type Image = [Float]
 type Sample = (Int, Image)
@@ -144,3 +148,22 @@ getTraining = do
 
 printEpoch :: Int -> Int -> Int -> IO()
 printEpoch epochIndex correctCnt total = putStrLn $ "EPOCH #" ++ (show epochIndex) ++ " - " ++ (show correctCnt) ++ " / " ++ (show total)
+
+-- Recebe a lista de ativacao como parametro
+-- Retorna uma tupla: o melhor sigmoid e seu respectivo indice
+getBestSigmoid :: [Float] -> (Float, Int)
+getBestSigmoid activationValues = let first = maximum (activationValues)
+                                      second = fromJust $ (elemIndex (maximum (activationValues)) (activationValues))
+                                  in (first, second)
+                                  
+-- Recebe a tupla (sigmoid, indice) 
+-- Retorna a formatacao em string que representa
+-- o numero e a probabilidade de ser esse numero
+toPercentage :: (Float, Int) -> [Float] -> String
+toPercentage sigmoid activationValues = 
+    "[" ++ (printf "%d" (snd sigmoid + 1)) ++ " - " ++ (printf "%.2f" ((fst sigmoid) * 100 / sum (activationValues))) ++ "%]" 
+
+-- Computa a resposta definitiva a partir do
+-- array de valores de ativacao
+definitiveAnswer :: Data -> IO String
+definitiveAnswer activationValues = return ("Resposta definitiva: " ++ toPercentage (getBestSigmoid $ aOutput activationValues) (aOutput activationValues))

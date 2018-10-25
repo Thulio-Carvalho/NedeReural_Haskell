@@ -9,7 +9,8 @@ module Types
  generateBasedOf,
  isEmpty,
  hadamardV,
- hadamardM
+ hadamardM,
+ sigV'
 ) where
 
 data Data = Data {
@@ -47,9 +48,6 @@ hadamardV list1 list2 = zipWith (*) list1 list2
 -- Efetua hadamard entre duas matrizes
 hadamardM :: (Num a) => [[a]] -> [[a]] -> [[a]]
 hadamardM matrix1 matrix2 = zipWith hadamardV matrix1 matrix2
-
-scalarProduct :: (Num a) => [a] -> [a] -> a
-scalarProduct list1 list2 = sum $ map (*) list1 list2
 
 getElems :: [Int] -> Int -> Int -> [Int]
 getElems [] _ _ = []
