@@ -13,6 +13,8 @@ module Types
  sigV'
 ) where
 
+import Numeric.LinearAlgebra.HMatrix
+
 data Data = Data {
                 wHidden :: [[Float]],
                 bHidden :: [Float],
@@ -48,6 +50,10 @@ hadamardV list1 list2 = zipWith (*) list1 list2
 -- Efetua hadamard entre duas matrizes
 hadamardM :: (Num a) => [[a]] -> [[a]] -> [[a]]
 hadamardM matrix1 matrix2 = zipWith hadamardV matrix1 matrix2
+
+-- Efetua um produto escalar entre duas listas
+scalarProduct :: (Num a) => [a] -> [a] -> a
+scalarProduct list1 list2 = sum $ zipWith (*) list1 list2
 
 getElems :: [Int] -> Int -> Int -> [Int]
 getElems [] _ _ = []
