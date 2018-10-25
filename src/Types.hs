@@ -7,7 +7,9 @@ module Types
  divideV,
  divideM,
  generateBasedOf,
- isEmpty
+ isEmpty,
+ hadamardV,
+ hadamardM
 ) where
 
 data Data = Data {
