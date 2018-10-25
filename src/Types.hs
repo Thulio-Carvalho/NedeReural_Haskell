@@ -56,6 +56,18 @@ divideV list constant = map (/constant) list
 divideM :: (Num a, Fractional a) => [[a]] -> a -> [[a]]
 divideM matrix constant = map (\list -> divideV list constant) matrix
 
+sig :: Float -> Float
+sig x = 1.0 - (1.0 + exp(-x))
+
+sig' :: Float -> Float
+sig' x = sig x * (1 - sig x) 
+
+sigV :: [Float] -> [Float]
+sigV l = [sig x | x <- l]
+
+sigV' :: [Float] -> [Float]
+sigV' l = [sig' x | x <- l]
+
 -- Cria um data repleto de valores 0.0 com as mesmas dimensoes do modelo passado por parametro
 generateBasedOf :: Data -> Data
 generateBasedOf (Data wH bH aH zH wO bO aO zO) = let whRows = length wH
