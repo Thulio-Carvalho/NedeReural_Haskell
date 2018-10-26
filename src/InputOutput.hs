@@ -21,7 +21,7 @@
  import Numeric.LinearAlgebra.HMatrix
  
  type Image = [Double]
- type Sample = (Int, Image)
+ type Sample = (Double, Image)
  
  -- Transforma uma String em uma lista
  strToArr::String->[Double]
@@ -138,8 +138,8 @@
      return ret
  
  -- Constroi um Sample
- makeSample::[Double]->IO Sample
- makeSample (h:t) = (readh, t)
+ makeSample::[Double]->Sample
+ makeSample (h:t) = (h, t)
  
  -- Cria uma lista de Sample dado os arquivos e o local
  listSample::[[Double]]->IO [Sample]
@@ -154,7 +154,7 @@
  getTest = do
      let caminho = "Tests/train.txt" -- Diretorio de testes
      elems <- readFile caminho
-     mt <- strToMatrix elems
+     let mt = strToMatrix elems
      ret <- listSample mt
      return ret
  
@@ -162,8 +162,8 @@
  getTraining::IO [Sample]
  getTraining = do
      let caminho = "Training/train.txt" -- Diretorio de treino
-     elems <- readFile caminhos
-     mt <- strToMatrix elems
+     elems <- readFile caminho
+     let mt = strToMatrix elems
      ret <- listSample mt 
      return ret
  

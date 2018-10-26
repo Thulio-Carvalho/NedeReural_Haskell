@@ -13,7 +13,7 @@ import Numeric.LinearAlgebra.HMatrix
 import Numeric.LinearAlgebra.Data
 
 type Image = [Double]
-type Sample = (Int, Image)
+type Sample = (Double, Image)
 
 -- Funcao de treino que executa uma
 -- dada quantidade de epocas de treino
