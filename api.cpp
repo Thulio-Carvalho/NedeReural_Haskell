@@ -1,10 +1,8 @@
-#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 bool drawing;
-cv::Mat img;
-
 typedef char byte;
 
 union buffer{
@@ -19,18 +17,6 @@ void gmbARUMAITO(buffer &size){
     aux = size.chars[2];
     size.chars[2] = size.chars[1];
     size.chars[1] = aux;
-}
-
-void draw_circle(int event, int x, int y, int flags, void* param){
-    if (event == cv::EVENT_LBUTTONDOWN){
-        drawing = true;
-    }else if(event == cv::EVENT_MOUSEMOVE){
-        if (drawing == true)
-            cv::circle(img,cv::Point(x,y),6,cv::Scalar(255,255,255),-1, cv::LINE_AA);
-    }else if(event == cv::EVENT_LBUTTONUP){
-        drawing = false;
-        cv::circle(img,cv::Point(x,y),6,cv::Scalar(255,255,255),-1, cv::LINE_AA);
-    }
 }
 
 void allData(std::string image_path, std::string label_path){
@@ -67,29 +53,6 @@ void allData(std::string image_path, std::string label_path){
 }
 
 int main(int argc, char *argv[]){
-    if(argc > 2){
-        allData("", "");
-        return 0;
-    }
-    drawing = false;
-    img = cv::Mat(280, 280, CV_8UC3, cv::Scalar(0,0,0));
-    cv::namedWindow("Desenhe");
-    cv::setMouseCallback("Desenhe", draw_circle);
-    while(1){
-        cv::imshow("Desenhe",img);
-        int k = cv::waitKey(1) & 0xFF;
-        if (k == 's'){
-            cv::Mat b;
-            cv::Size size(28, 28);
-            cv::resize(img, b, size);
-            for(int i = 0; i < 28; i++){
-                for(int j = 0; j < 28; j++){
-                    std::cout <<  b.at<uchar>(cv::Point(i, j)) / 255.0 << " \n"[i == 27 && j == 27];
-                }
-            }
-            cv::destroyAllWindows();
-            break;
-        }
-    }
+    allData("src/Training/train-images-idx3-ubyte", "src/Training/train-labels-idx1-ubyte");
     return 0;
 }

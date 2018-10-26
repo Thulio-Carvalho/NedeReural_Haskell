@@ -1,0 +1,1 @@
+bash: ./api: Arquivo ou diretório inexistente
