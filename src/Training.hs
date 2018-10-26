@@ -14,6 +14,8 @@ import Numeric.LinearAlgebra.HMatrix
 type Image = [Double]
 type Sample = (Int, Image)
 
+-- Funcao de treino que executa uma
+-- dada quantidade de epocas de treino
 train :: Int -> IO String
 train epochAmount = do 
                     trainingSet <- getTraining
@@ -22,6 +24,7 @@ train epochAmount = do
                     manageTrainingEpoch epochAmount trainingSet testSet network
                 -- save network
 
+-- 
 manageTrainingEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
 manageTrainingEpoch 0 _ _ _ = return ""
 manageTrainingEpoch epochAmount trainingSet testSet network = do
@@ -59,9 +62,11 @@ minibatchEvaluation minibatch amount network = let sumedDesiredChanges = manageS
 manageSample :: [Sample] -> Int -> Data -> Data
 manageSample minibatch counter networkModel = if counter > 0
                                     then
-                                        let network = feedforward (snd $ minibatch !! counter) networkModel
-                                            expectedOutput = buildExpectedOutput (fst $ minibatch !! counter)
-                                            desiredChanges = backpropagation network expectedOutput
+                                        let representedInt = fst $ minibatch !! counter
+                                            image = snd $ minibatch !! counter
+                                            network = feedforward representedInt networkModel
+                                            expectedOutput = buildExpectedOutput representedInt
+                                            desiredChanges = backpropagation image network expectedOutput
                                             sumChanges = generateBasedOf networkModel
                                         in plus (plus sumChanges desiredChanges) (manageSample minibatch counter networkModel)
                                     else
@@ -74,19 +79,40 @@ buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
 -- Recebe as informacoes da rede neural, o resultado 
 -- esperado e retorna um Data com as modificacoes necessarias
 -- na rede
--- N = network, E = expected list
-backpropagation :: Data -> [Double] -> Data
-backpropagation n e
+-- N = network, E = expected list, I = image values
+backpropagation :: Data -> Image -> [Double] -> Data
+backpropagation i n e
     | isEmpty n = error "Backpropagation error: Data is empty"
     | length e /= 10 = error "Backpropagation error: expectedOutput list is invalid"
-    | otherwise = let outputError = computeOutputError (toList $ aOutput n) e (toList $ zetaOutput n)
-                  in n
+    | otherwise = let outputError = computeOutputError (aOutput n) (fromList e) (zetaOutput n)
+                      hiddenError = computeHiddenError (wOutput n) outputError (zetaHidden n)
+                      outputDesiredChanges = computOutputDesiredChanges outputError (aHidden n)
+                      hiddenDesiredChanges = computHiddenDesiredChanges hiddenError i
+                      wH = fst hiddenDesiredChanges
+                      bH = snd hiddenDesiredChanges
+                      wO = fst outputDesiredChanges
+                      bO = snd outputDesiredChanges
+                      newNetwork = (Data wH bH (aHidden n) (zetaHidden n) wO bO (aOutput n) (zetaOutput n))  
+                  in newNetwork
 
 -- Gera o vetor de erro da camada output, recebe
 -- as ativacoes do output atual, as ativacoes esperadas 
 -- e a lista zeta do output
-computeOutputError :: [Double] -> [Double] -> [Double] -> [Double]
-computeOutputError a e z = hadamardV a (sigV' z)
+computeOutputError :: Vector Double -> Vector Double -> Vector Double -> Vector Double
+computeOutputError a e z = hadamardV (toList (a sub e)) (sigV' $ toList z)
+
+computeHiddenError :: Matrix R -> Vector Double -> Vector Double -> Vector Double
+computeHiddenError ow oe hz = fromList $ hadamardV (toList $ (tr' ow) #> oe) (sigV' (toList zo)) 
+
+computeOutputDesiredChanges :: Vector Double -> Vector Double -> (Vector Double, Vector Double)
+computeOutputDesiredChanges oe ah = let owDesired = oe `outer` ah
+                                        ohDesired = oe
+                                    in (owDesired, ohDesired)
+
+computeHiddenDesiredChanges :: Vector Double -> Image -> (Vector Double, Vector Double)
+computeHiddenDesiredChanges he image = let hwDesired = he `outer`image
+                                           hbDesired = he
+                                       in (hwDesired, hbDesired)
 
 testEpoch :: [Sample] -> Data -> Int
 testEpoch testSet network = manageEpoch testSet network (length testSet)
