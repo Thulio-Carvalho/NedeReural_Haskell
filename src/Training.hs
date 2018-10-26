@@ -10,6 +10,7 @@ import Data.List.Split
 import System.Random
 import System.Random.Shuffle
 import Numeric.LinearAlgebra.HMatrix
+import Numeric.LinearAlgebra.Data
 
 type Image = [Double]
 type Sample = (Int, Image)
@@ -64,9 +65,9 @@ manageSample minibatch counter networkModel = if counter > 0
                                     then
                                         let representedInt = fst $ minibatch !! counter
                                             image = snd $ minibatch !! counter
-                                            network = feedforward representedInt networkModel
+                                            network = feedforward image networkModel
                                             expectedOutput = buildExpectedOutput representedInt
-                                            desiredChanges = backpropagation image network expectedOutput
+                                            desiredChanges = backpropagation network image expectedOutput
                                             sumChanges = generateBasedOf networkModel
                                         in plus (plus sumChanges desiredChanges) (manageSample minibatch counter networkModel)
                                     else
@@ -81,13 +82,13 @@ buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
 -- na rede
 -- N = network, E = expected list, I = image values
 backpropagation :: Data -> Image -> [Double] -> Data
-backpropagation i n e
+backpropagation n i e
     | isEmpty n = error "Backpropagation error: Data is empty"
     | length e /= 10 = error "Backpropagation error: expectedOutput list is invalid"
     | otherwise = let outputError = computeOutputError (aOutput n) (fromList e) (zetaOutput n)
                       hiddenError = computeHiddenError (wOutput n) outputError (zetaHidden n)
-                      outputDesiredChanges = computOutputDesiredChanges outputError (aHidden n)
-                      hiddenDesiredChanges = computHiddenDesiredChanges hiddenError i
+                      outputDesiredChanges = computeOutputDesiredChanges outputError (aHidden n)
+                      hiddenDesiredChanges = computeHiddenDesiredChanges hiddenError i
                       wH = fst hiddenDesiredChanges
                       bH = snd hiddenDesiredChanges
                       wO = fst outputDesiredChanges
@@ -99,18 +100,18 @@ backpropagation i n e
 -- as ativacoes do output atual, as ativacoes esperadas 
 -- e a lista zeta do output
 computeOutputError :: Vector Double -> Vector Double -> Vector Double -> Vector Double
-computeOutputError a e z = hadamardV (toList (a sub e)) (sigV' $ toList z)
+computeOutputError a e z = fromList $ hadamardV (toList (add a (scale (-1) e))) (sigV' $ toList z)
 
 computeHiddenError :: Matrix R -> Vector Double -> Vector Double -> Vector Double
-computeHiddenError ow oe hz = fromList $ hadamardV (toList $ (tr' ow) #> oe) (sigV' (toList zo)) 
+computeHiddenError ow oe hz = fromList $ hadamardV (toList $ (tr' ow) #> oe) (sigV' (toList hz)) 
 
-computeOutputDesiredChanges :: Vector Double -> Vector Double -> (Vector Double, Vector Double)
+computeOutputDesiredChanges :: Vector Double -> Vector Double -> (Matrix R, Vector Double)
 computeOutputDesiredChanges oe ah = let owDesired = oe `outer` ah
                                         ohDesired = oe
                                     in (owDesired, ohDesired)
 
-computeHiddenDesiredChanges :: Vector Double -> Image -> (Vector Double, Vector Double)
-computeHiddenDesiredChanges he image = let hwDesired = he `outer`image
+computeHiddenDesiredChanges :: Vector Double -> Image -> (Matrix R, Vector Double)
+computeHiddenDesiredChanges he image = let hwDesired = he `outer` (fromList image)
                                            hbDesired = he
                                        in (hwDesired, hbDesired)
 
