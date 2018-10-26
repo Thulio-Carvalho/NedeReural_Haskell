@@ -2,7 +2,6 @@
 
 module Execution
 (execute,
- initialize,
  feedforward) where
 
 import InputOutput
@@ -15,15 +14,18 @@ type Sample = (Int, Image)
 -- execute, por retornar IO, pode interagir chamando outras IO Actions como
 -- leitura dos weights, biases e input da Rede, por exemplo.
 execute :: IO String -- mero esqueleto da funcao de execucao
-execute = return ""
-
--- inicializa a rede com dados previamente salvos,
--- ou aleatorios em caso de primeira execucao.
-initialize :: Data
-initialize = Data (fromLists [[]]) (fromList []) (fromList []) (fromList []) (fromLists [[]]) (fromList []) (fromList []) (fromList [])
+execute = do 
+        network <- readIn
+        let image = [1.0 .. 784.0]
+            executedNetwork = feedforward image network
+        do definitiveAnswer executedNetwork            
 
 -- recebe a imagem, a network e computa os calculos,
 -- retornando a nova data com os valores de ativacao
 -- e zeta do hidden e output alterados.
-feedforward :: Image -> Data -> Data
-feedforward input network = Data (fromLists [[]]) (fromList []) (fromList []) (fromList []) (fromLists [[]]) (fromList []) (fromList []) (fromList [])
+feedforward :: Image -> Data -> Data 
+feedforward image network = let zH = add ((wHidden network) #> (fromList image)) (bHidden network)
+                                aH = fromList $ sigV (toList zH)
+                                zO = add ((wOutput network) #> aH) (bOutput network)
+                                aO = fromList $ sigV (toList zO) 
+                            in Data (wHidden network) (bHidden network) aH zH (wOutput network) (bOutput network) aO zO
