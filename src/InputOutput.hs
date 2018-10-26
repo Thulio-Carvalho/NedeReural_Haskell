@@ -17,40 +17,41 @@ import System.Directory
 import System.Random
 import Types
 import Text.Printf
+import Numeric.LinearAlgebra.HMatrix
 
 
-type Image = [Float]
+type Image = [Double]
 type Sample = (Int, Image)
 
-strToArr::String->[Float]
-strToArr line = [(read x::Float)| x<-(words line)]
+strToArr::String->[Double]
+strToArr line = [(read x::Double)| x<-(words line)]
     
-strToMatrix::String->[[Float]]
+strToMatrix::String->[[Double]]
 strToMatrix mt = [(strToArr x)| x<-(lines mt)]
     
-arrToStr::[Float]->String
+arrToStr::[Double]->String
 arrToStr [] = ""
 arrToStr (h:t) = (show h::String) ++ " " ++ (arrToStr t)
     
-matrixToStr::[[Float]]->String
+matrixToStr::[[Double]]->String
 matrixToStr [] = ""
 matrixToStr (h:t) = (arrToStr h) ++ "\n" ++ (matrixToStr t)
 
-listRandom::Int->IO [Float]
+listRandom::Int->IO [Double]
 listRandom 0 = return []
 listRandom sz = do 
-    head <- randomIO::IO Float
+    head <- randomIO::IO Double
     tail <- listRandom (sz-1)
     return (head:tail)
 
-matrixRandom::Int->Int->IO [[Float]]
+matrixRandom::Int->Int->IO [[Double]]
 matrixRandom 0 y = return []
 matrixRandom x y = do
     head <- listRandom y
     tail <- matrixRandom (x-1) y
     return (head:tail)
 
-getArchiveL::String->Int->IO [Float]
+getArchiveL::String->Int->IO [Double]
 getArchiveL path sz = do
     emp <- isEmptyFile path
     if not emp then 
@@ -62,7 +63,7 @@ getArchiveL path sz = do
             ret <- listRandom sz
             return ret
 
-getArchiveM::String->Int->Int->IO [[Float]]
+getArchiveM::String->Int->Int->IO [[Double]]
 getArchiveM path x y = do
     emp <- isEmptyFile path
     if not emp then 
@@ -86,19 +87,19 @@ readIn = do
     aO <- getArchiveL "Activation_Output.txt" 30
     zO <- getArchiveL "Zeta_Output.txt" 30
 
-    return $ Data wH bH aH zH wO bO aO zO
+    return $ (Data (fromLists wH) (fromList bH) (fromList aH) (fromList zH) (fromLists wO) (fromList bO) (fromList aO) (fromList zO))
 
 writeIn::Data->IO() 
 writeIn elem = do
-    writeFile "Weight_hidden.txt" (matrixToStr (wHidden elem))
-    writeFile "Biases_hidden.txt" (arrToStr (bHidden elem))
-    writeFile "Activation_hidden.txt" (arrToStr (aHidden elem))
-    writeFile "Zeta_hidden.txt" (arrToStr (zetaHidden elem))
+    writeFile "Weight_hidden.txt" (matrixToStr (toLists $ wHidden elem))
+    writeFile "Biases_hidden.txt" (arrToStr (toList $ bHidden elem))
+    writeFile "Activation_hidden.txt" (arrToStr (toList $ aHidden elem))
+    writeFile "Zeta_hidden.txt" (arrToStr (toList $ zetaHidden elem))
 
-    writeFile "Weight_Output.txt" (matrixToStr (wOutput elem))
-    writeFile "Biases_Output.txt" (arrToStr (bOutput elem))
-    writeFile "Activation_Output.txt" (arrToStr (aOutput elem))
-    writeFile "Zeta_Output.txt" (arrToStr (zetaOutput elem))
+    writeFile "Weight_Output.txt" (matrixToStr (toLists $ wOutput elem))
+    writeFile "Biases_Output.txt" (arrToStr (toList $ bOutput elem))
+    writeFile "Activation_Output.txt" (arrToStr (toList $ aOutput elem))
+    writeFile "Zeta_Output.txt" (arrToStr (toList $ zetaOutput elem))
 
 isEmptyFile::String->IO Bool
 isEmptyFile path = do
@@ -151,7 +152,7 @@ printEpoch epochIndex correctCnt total = putStrLn $ "EPOCH #" ++ (show epochInde
 
 -- Recebe a lista de ativacao como parametro
 -- Retorna uma tupla: o melhor sigmoid e seu respectivo indice
-getBestSigmoid :: [Float] -> (Float, Int)
+getBestSigmoid :: [Double] -> (Double, Int)
 getBestSigmoid activationValues = let first = maximum (activationValues)
                                       second = fromJust $ (elemIndex (maximum (activationValues)) (activationValues))
                                   in (first, second)
@@ -159,11 +160,11 @@ getBestSigmoid activationValues = let first = maximum (activationValues)
 -- Recebe a tupla (sigmoid, indice) 
 -- Retorna a formatacao em string que representa
 -- o numero e a probabilidade de ser esse numero
-toPercentage :: (Float, Int) -> [Float] -> String
+toPercentage :: (Double, Int) -> [Double] -> String
 toPercentage sigmoid activationValues = 
     "[" ++ (printf "%d" (snd sigmoid + 1)) ++ " - " ++ (printf "%.2f" ((fst sigmoid) * 100 / sum (activationValues))) ++ "%]" 
 
 -- Computa a resposta definitiva a partir do
 -- array de valores de ativacao
 definitiveAnswer :: Data -> IO String
-definitiveAnswer activationValues = return ("Resposta definitiva: " ++ toPercentage (getBestSigmoid $ aOutput activationValues) (aOutput activationValues))
+definitiveAnswer activationValues = return ("Resposta definitiva: " ++ toPercentage (getBestSigmoid (toList $ aOutput activationValues)) (toList $ aOutput activationValues))

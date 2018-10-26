@@ -9,8 +9,9 @@ import Types
 import Data.List.Split
 import System.Random
 import System.Random.Shuffle
+import Numeric.LinearAlgebra.HMatrix
 
-type Image = [Float]
+type Image = [Double]
 type Sample = (Int, Image)
 
 train :: Int -> IO String
@@ -66,7 +67,7 @@ manageSample minibatch counter networkModel = if counter > 0
                                     else
                                         generateBasedOf networkModel
 
-buildExpectedOutput :: Int -> [Float]
+buildExpectedOutput :: Int -> [Double]
 buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
                                        in [if x == (fromIntegral representedValue) then x else 0.0 | x <- indexes]
 
@@ -74,17 +75,17 @@ buildExpectedOutput representedValue = let indexes = [0.0 .. 9.0]
 -- esperado e retorna um Data com as modificacoes necessarias
 -- na rede
 -- N = network, E = expected list
-backpropagation :: Data -> [Float] -> Data
+backpropagation :: Data -> [Double] -> Data
 backpropagation n e
     | isEmpty n = error "Backpropagation error: Data is empty"
-    | length e /= 10 = error"Backpropagation error: expectedOutput list is invalid"
-    | otherwise = let outputError = computeOutputError (aOutput n) e (zetaOutput n)
+    | length e /= 10 = error "Backpropagation error: expectedOutput list is invalid"
+    | otherwise = let outputError = computeOutputError (toList $ aOutput n) e (toList $ zetaOutput n)
                   in n
 
 -- Gera o vetor de erro da camada output, recebe
 -- as ativacoes do output atual, as ativacoes esperadas 
 -- e a lista zeta do output
-computeOutputError :: [Float] -> [Float] -> [Float] -> [Float]
+computeOutputError :: [Double] -> [Double] -> [Double] -> [Double]
 computeOutputError a e z = hadamardV a (sigV' z)
 
 testEpoch :: [Sample] -> Data -> Int
@@ -94,7 +95,7 @@ manageEpoch :: [Sample] -> Data -> Int -> Int
 manageEpoch testSet network counter = if counter > 0
                                         then
                                             let newNetwork = feedforward (snd $ testSet !! counter) network
-                                            in if (aOutput newNetwork) == buildExpectedOutput (fst $ testSet !! counter) 
+                                            in if (toList $ aOutput newNetwork) == buildExpectedOutput (fst $ testSet !! counter) 
                                                 then
                                                     1 + manageEpoch testSet network (counter - 1)
                                                 else

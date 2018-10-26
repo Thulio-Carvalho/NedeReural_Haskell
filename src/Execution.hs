@@ -7,8 +7,9 @@ module Execution
 
 import InputOutput
 import Types
+import Numeric.LinearAlgebra.HMatrix
 
-type Image = [Float]
+type Image = [Double]
 type Sample = (Int, Image)
 
 -- execute, por retornar IO, pode interagir chamando outras IO Actions como
@@ -19,10 +20,10 @@ execute = return ""
 -- inicializa a rede com dados previamente salvos,
 -- ou aleatorios em caso de primeira execucao.
 initialize :: Data
-initialize = Data [[]] [] [] [] [[]] [] [] []
+initialize = Data (fromLists [[]]) (fromList []) (fromList []) (fromList []) (fromLists [[]]) (fromList []) (fromList []) (fromList [])
 
 -- recebe a imagem, a network e computa os calculos,
 -- retornando a nova data com os valores de ativacao
 -- e zeta do hidden e output alterados.
 feedforward :: Image -> Data -> Data
-feedforward input network = Data [[]] [] [] [] [[]] [] [] []
+feedforward input network = Data (fromLists [[]]) (fromList []) (fromList []) (fromList []) (fromLists [[]]) (fromList []) (fromList []) (fromList [])
