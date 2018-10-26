@@ -10,6 +10,7 @@ module InputOutput
  printEpoch
  ) where
 
+import Debug.Trace
 import Data.List
 import Data.Char
 import Data.Maybe
@@ -104,15 +105,15 @@ readIn = do
 -- Escreve o Data nos arquivos
 writeIn::Data->IO() 
 writeIn elem = do
-    writeFile "NedeReural_Haskell/Data/Weight_hidden.txt" (matrixToStr (toLists $ wHidden elem))
-    writeFile "NedeReural_Haskell/Data/Biases_hidden.txt" (arrToStr (toList $ bHidden elem))
-    writeFile "NedeReural_Haskell/Data/Activation_hidden.txt" (arrToStr (toList $ aHidden elem))
-    writeFile "NedeReural_Haskell/Data/Zeta_hidden.txt" (arrToStr (toList $ zetaHidden elem))
+    writeFile "Data/Weight_hidden.txt" (matrixToStr (toLists $ wHidden elem))
+    writeFile "Data/Biases_hidden.txt" (arrToStr (toList $ bHidden elem))
+    writeFile "Data/Activation_hidden.txt" (arrToStr (toList $ aHidden elem))
+    writeFile "Data/Zeta_hidden.txt" (arrToStr (toList $ zetaHidden elem))
 
-    writeFile "NedeReural_Haskell/Data/Weight_Output.txt" (matrixToStr (toLists $ wOutput elem))
-    writeFile "NedeReural_Haskell/Data/Biases_Output.txt" (arrToStr (toList $ bOutput elem))
-    writeFile "NedeReural_Haskell/Data/Activation_Output.txt" (arrToStr (toList $ aOutput elem))
-    writeFile "NedeReural_Haskell/Data/Zeta_Output.txt" (arrToStr (toList $ zetaOutput elem))
+    writeFile "Data/Weight_Output.txt" (matrixToStr (toLists $ wOutput elem))
+    writeFile "Data/Biases_Output.txt" (arrToStr (toList $ bOutput elem))
+    writeFile "Data/Activation_Output.txt" (arrToStr (toList $ aOutput elem))
+    writeFile "Data/Zeta_Output.txt" (arrToStr (toList $ zetaOutput elem))
 
 -- Verifica se o arquivo esta vazio
 isEmptyFile::String->IO Bool
@@ -154,17 +155,17 @@ listSample (h:t) path = do
 -- Retorna o TestSet da rede
 getTest::IO [Sample]
 getTest = do
-    let caminho = "NedeReural_Haskell/Tests" -- Diretorio de testes
-    elems <- (getDirectoryContents caminho) -- Colocar diretorio
+    let caminho = "Tests/" -- Diretorio de testes
+    elems <- (getDirectoryContents caminho)
     ret <- listSample (filter (/= ".") $ filter (/= "..") elems) caminho 
     return ret
 
 -- Retorna o TraninigSet da rede
 getTraining::IO [Sample]
 getTraining = do
-    let caminho = "NedeReural_Haskell/Training" -- Diretorio de treino
-    elems <- (getDirectoryContents caminho) -- Colocar diretorio
-    ret <- listSample (filter (/= ".") $ filter (/= "..") elems) caminho 
+    let caminho = "Training/" -- Diretorio de treino
+    elems <- (getDirectoryContents caminho)
+    ret <- listSample (filter (/= ".") $ filter (/= "..") elems) caminho  
     return ret
 
 -- Imprime na tela a taxa de acerto de uma epoca de teste

@@ -60,7 +60,7 @@ executable NedeReural-Haskell
   build-depends:       base >=4.9 && <4.10, split, random, random-shuffle, directory, hmatrix
   -- Directories containing source files.
   hs-source-dirs:      src
-  
+  ghc-options: -fprof-auto
   -- Base language which the package is written in.
   default-language:    Haskell2010
   

@@ -29,6 +29,7 @@ manageTrainingEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
 manageTrainingEpoch 0 _ _ _ = return ""
 manageTrainingEpoch epochAmount trainingSet testSet network = do
                                                 newNetwork <- trainingEpoch trainingSet network
+                                                putStrLn (show (length trainingSet))
                                                 let 
                                                     correctCnt = testEpoch testSet newNetwork
                                                     totalAmount = length testSet
@@ -115,6 +116,7 @@ computeHiddenDesiredChanges he image = let hwDesired = he `outer` (fromList imag
                                            hbDesired = he
                                        in (hwDesired, hbDesired)
 
+-- PROVISORIAMENTE IO
 testEpoch :: [Sample] -> Data -> Int
 testEpoch testSet network = manageEpoch testSet network (length testSet)
 
