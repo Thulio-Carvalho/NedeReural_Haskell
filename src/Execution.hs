@@ -16,8 +16,8 @@ type Sample = (Int, Image)
 execute :: IO String -- mero esqueleto da funcao de execucao
 execute = do 
         network <- readIn
-        let image = [1.0 .. 784.0]
-            executedNetwork = feedforward image network
+        image <- getImage "src/numeros/input5.txt"
+        let executedNetwork = feedforward image network
         do definitiveAnswer executedNetwork            
 
 -- recebe a imagem, a network e computa os calculos,

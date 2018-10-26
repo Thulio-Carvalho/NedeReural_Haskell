@@ -7,7 +7,8 @@
   writeIn,
   isEmptyFile,
   definitiveAnswer,
-  printEpoch
+  printEpoch,
+  getImage
   ) where
  
  import Debug.Trace
@@ -138,9 +139,14 @@
      return ret
  
  -- Constroi um Sample
- makeSample::[Double]->IO Sample
- makeSample (h:t) = (readh, t)
+ makeSample::[Double]->Sample
+ makeSample (h:t) = ((round h), t)
  
+ getImage:: String -> IO Image
+ getImage path = do
+    archive <- readFile path
+    return $ strToArr archive
+
  -- Cria uma lista de Sample dado os arquivos e o local
  listSample::[[Double]]->IO [Sample]
  listSample [] = return []
@@ -152,9 +158,9 @@
  -- Retorna o TestSet da rede
  getTest::IO [Sample]
  getTest = do
-     let caminho = "Tests/train.txt" -- Diretorio de testes
+     let caminho = "Tests/tests.txt" -- Diretorio de testes
      elems <- readFile caminho
-     mt <- strToMatrix elems
+     let mt = strToMatrix elems
      ret <- listSample mt
      return ret
  
@@ -162,9 +168,10 @@
  getTraining::IO [Sample]
  getTraining = do
      let caminho = "Training/train.txt" -- Diretorio de treino
-     elems <- readFile caminhos
-     mt <- strToMatrix elems
-     ret <- listSample mt 
+     elems <- readFile caminho
+     let mt = strToMatrix elems
+     ret <- listSample mt
+    
      return ret
  
  -- Imprime na tela a taxa de acerto de uma epoca de teste
