@@ -23,20 +23,26 @@ import Numeric.LinearAlgebra.HMatrix
 type Image = [Double]
 type Sample = (Int, Image)
 
+-- Transforma uma String em uma lista
 strToArr::String->[Double]
 strToArr line = [(read x::Double)| x<-(words line)]
     
+-- Transforma uma String em uma matrix
 strToMatrix::String->[[Double]]
 strToMatrix mt = [(strToArr x)| x<-(lines mt)]
-    
+
+-- Transforma uma lista em uma String
 arrToStr::[Double]->String
 arrToStr [] = ""
 arrToStr (h:t) = (show h::String) ++ " " ++ (arrToStr t)
-    
+
+-- Transforma uma matriz em uma String
 matrixToStr::[[Double]]->String
 matrixToStr [] = ""
 matrixToStr (h:t) = (arrToStr h) ++ "\n" ++ (matrixToStr t)
 
+-- Dado o seu tamanho, gera uma lista 
+-- com valores randomicos
 listRandom::Int->IO [Double]
 listRandom 0 = return []
 listRandom sz = do 
@@ -44,6 +50,8 @@ listRandom sz = do
     tail <- listRandom (sz-1)
     return (head:tail)
 
+-- Dado o seu tamanho, gera uma matrix
+-- com valores randomicos
 matrixRandom::Int->Int->IO [[Double]]
 matrixRandom 0 y = return []
 matrixRandom x y = do
@@ -51,6 +59,8 @@ matrixRandom x y = do
     tail <- matrixRandom (x-1) y
     return (head:tail)
 
+-- Dado o seu caminho, le o arquivo
+-- e o transforma em uma lista
 getArchiveL::String->Int->IO [Double]
 getArchiveL path sz = do
     emp <- isEmptyFile path
@@ -63,6 +73,8 @@ getArchiveL path sz = do
             ret <- listRandom sz
             return ret
 
+-- Dado o seu caminho, le o arquivo
+-- e o transforma em uma matriz
 getArchiveM::String->Int->Int->IO [[Double]]
 getArchiveM path x y = do
     emp <- isEmptyFile path
@@ -75,32 +87,35 @@ getArchiveM path x y = do
             ret <- matrixRandom x y
             return ret
 
+-- Le os vetores e matrizes presentes nos arquivos para montar e retornar um Data
 readIn::IO Data
 readIn = do
-    wH <- getArchiveM "Weight_hidden.txt" 30 784
-    bH <- getArchiveL "Biases_hidden.txt" 30
-    aH <- getArchiveL "Activation_hidden.txt" 30
-    zH <- getArchiveL "Zeta_hidden.txt" 30
+    wH <- getArchiveM "NedeReural_Haskell/Data/Weight_hidden.txt" 30 784
+    bH <- getArchiveL "NedeReural_Haskell/Data/Biases_hidden.txt" 30
+    aH <- getArchiveL "NedeReural_Haskell/Data/Activation_hidden.txt" 30
+    zH <- getArchiveL "NedeReural_Haskell/Data/Zeta_hidden.txt" 30
 
-    wO <- getArchiveM "Weight_Output.txt" 10 30
-    bO <- getArchiveL "Biases_Output.txt" 30
-    aO <- getArchiveL "Activation_Output.txt" 30
-    zO <- getArchiveL "Zeta_Output.txt" 30
+    wO <- getArchiveM "NedeReural_Haskell/Data/Weight_Output.txt" 10 30
+    bO <- getArchiveL "NedeReural_Haskell/Data/Biases_Output.txt" 30
+    aO <- getArchiveL "NedeReural_Haskell/Data/Activation_Output.txt" 30
+    zO <- getArchiveL "NedeReural_Haskell/Data/Zeta_Output.txt" 30
 
     return $ (Data (fromLists wH) (fromList bH) (fromList aH) (fromList zH) (fromLists wO) (fromList bO) (fromList aO) (fromList zO))
 
+-- Escreve o Data nos arquivos
 writeIn::Data->IO() 
 writeIn elem = do
-    writeFile "Weight_hidden.txt" (matrixToStr (toLists $ wHidden elem))
-    writeFile "Biases_hidden.txt" (arrToStr (toList $ bHidden elem))
-    writeFile "Activation_hidden.txt" (arrToStr (toList $ aHidden elem))
-    writeFile "Zeta_hidden.txt" (arrToStr (toList $ zetaHidden elem))
+    writeFile "NedeReural_Haskell/Data/Weight_hidden.txt" (matrixToStr (toLists $ wHidden elem))
+    writeFile "NedeReural_Haskell/Data/Biases_hidden.txt" (arrToStr (toList $ bHidden elem))
+    writeFile "NedeReural_Haskell/Data/Activation_hidden.txt" (arrToStr (toList $ aHidden elem))
+    writeFile "NedeReural_Haskell/Data/Zeta_hidden.txt" (arrToStr (toList $ zetaHidden elem))
 
-    writeFile "Weight_Output.txt" (matrixToStr (toLists $ wOutput elem))
-    writeFile "Biases_Output.txt" (arrToStr (toList $ bOutput elem))
-    writeFile "Activation_Output.txt" (arrToStr (toList $ aOutput elem))
-    writeFile "Zeta_Output.txt" (arrToStr (toList $ zetaOutput elem))
+    writeFile "NedeReural_Haskell/Data/Weight_Output.txt" (matrixToStr (toLists $ wOutput elem))
+    writeFile "NedeReural_Haskell/Data/Biases_Output.txt" (arrToStr (toList $ bOutput elem))
+    writeFile "NedeReural_Haskell/Data/Activation_Output.txt" (arrToStr (toList $ aOutput elem))
+    writeFile "NedeReural_Haskell/Data/Zeta_Output.txt" (arrToStr (toList $ zetaOutput elem))
 
+-- Verifica se o arquivo esta vazio
 isEmptyFile::String->IO Bool
 isEmptyFile path = do
     elem <- readFile path
@@ -108,24 +123,28 @@ isEmptyFile path = do
     if (length elem) == 0 then return True
     else return False
 
+-- Pega o numero que define a resposta do teste/treino
 pickNumber::FilePath->Int
 pickNumber "" = -1
 pickNumber (h:t)
                 | h == '-' = digitToInt $ t!!0
                 | otherwise = (pickNumber t)
 
+-- Constroi uma imagem
 makeImage::FilePath->IO Image
 makeImage path = do
     elem <- readFile path
     let ret = (strToArr elem)
     return ret
 
+-- Constroi um Sample
 makeSample::FilePath->String->IO Sample
 makeSample archive path = do
     let number = (pickNumber archive)
     mt <- (makeImage $ path++archive)
     return (number, mt)
 
+-- Cria uma lista de Sample dado os arquivos e o local
 listSample::[FilePath]->String->IO [Sample]
 listSample [] path = return []
 listSample (h:t) path = do
@@ -133,20 +152,23 @@ listSample (h:t) path = do
                 tail <- listSample t path
                 return $ head:tail
 
+-- Retorna o TestSet da rede
 getTest::IO [Sample]
 getTest = do
-    let caminho = "C:/Users/Amandio/Documents/Programacao/Hecome_Bumans/Tests" -- change
+    let caminho = "NedeReural_Haskell/Tests" -- Diretorio de testes
     elems <- (getDirectoryContents caminho) -- Colocar diretorio
     ret <- listSample (filter (/= ".") $ filter (/= "..") elems) caminho 
     return ret
 
+-- Retorna o TraninigSet da rede
 getTraining::IO [Sample]
 getTraining = do
-    let caminho = "C:/Users/Amandio/Documents/Programacao/Hecome_Bumans/Trains" -- change
+    let caminho = "NedeReural_Haskell/Training" -- Diretorio de treino
     elems <- (getDirectoryContents caminho) -- Colocar diretorio
     ret <- listSample (filter (/= ".") $ filter (/= "..") elems) caminho 
     return ret
 
+-- Imprime na tela a taxa de acerto de uma epoca de teste
 printEpoch :: Int -> Int -> Int -> IO()
 printEpoch epochIndex correctCnt total = putStrLn $ "EPOCH #" ++ (show epochIndex) ++ " - " ++ (show correctCnt) ++ " / " ++ (show total)
 
