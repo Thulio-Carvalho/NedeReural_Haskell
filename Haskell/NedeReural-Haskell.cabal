@@ -57,7 +57,7 @@ executable NedeReural-Haskell
   -- other-extensions:    
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.9 && <4.10, split, random, random-shuffle, directory, hmatrix
+  build-depends:       base >=4.9 && <4.10, split, random, random-shuffle, directory, hmatrix, test-framework, test-framework-hunit, HUnit, QuickCheck
   -- Directories containing source files.
   hs-source-dirs:      src
   
