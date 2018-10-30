@@ -7,6 +7,7 @@ module Types
  isEmpty,
  hadamardV,
  hadamardM,
+ sigV,
  sigV'
 ) where
 

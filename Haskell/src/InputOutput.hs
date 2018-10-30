@@ -19,7 +19,6 @@ import Types
 import Text.Printf
 import Numeric.LinearAlgebra.HMatrix
 
-
 type Image = [Double]
 type Sample = (Int, Image)
 
@@ -90,15 +89,15 @@ getArchiveM path x y = do
 -- Le os vetores e matrizes presentes nos arquivos para montar e retornar um Data
 readIn::IO Data
 readIn = do
-    wH <- getArchiveM "NedeReural_Haskell/Data/Weight_hidden.txt" 30 784
-    bH <- getArchiveL "NedeReural_Haskell/Data/Biases_hidden.txt" 30
-    aH <- getArchiveL "NedeReural_Haskell/Data/Activation_hidden.txt" 30
-    zH <- getArchiveL "NedeReural_Haskell/Data/Zeta_hidden.txt" 30
+    wH <- getArchiveM "Data/Weight_hidden.txt" 30 784
+    bH <- getArchiveL "Data/Biases_hidden.txt" 30
+    aH <- getArchiveL "Data/Activation_hidden.txt" 30
+    zH <- getArchiveL "Data/Zeta_hidden.txt" 30
 
-    wO <- getArchiveM "NedeReural_Haskell/Data/Weight_Output.txt" 10 30
-    bO <- getArchiveL "NedeReural_Haskell/Data/Biases_Output.txt" 30
-    aO <- getArchiveL "NedeReural_Haskell/Data/Activation_Output.txt" 30
-    zO <- getArchiveL "NedeReural_Haskell/Data/Zeta_Output.txt" 30
+    wO <- getArchiveM "Data/Weight_Output.txt" 10 30
+    bO <- getArchiveL "Data/Biases_Output.txt" 10
+    aO <- getArchiveL "Data/Activation_Output.txt" 10
+    zO <- getArchiveL "Data/Zeta_Output.txt" 10
 
     return $ (Data (fromLists wH) (fromList bH) (fromList aH) (fromList zH) (fromLists wO) (fromList bO) (fromList aO) (fromList zO))
 

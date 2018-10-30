@@ -21,9 +21,8 @@ train :: Int -> IO String
 train epochAmount = do 
                     trainingSet <- getTraining
                     testSet <- getTest
-                    let network = initialize
+                    network <- readIn
                     manageTrainingEpoch epochAmount trainingSet testSet network
-                -- save network
 
 -- 
 manageTrainingEpoch :: Int -> [Sample] -> [Sample] -> Data -> IO String
@@ -34,6 +33,7 @@ manageTrainingEpoch epochAmount trainingSet testSet network = do
                                                     correctCnt = testEpoch testSet newNetwork
                                                     totalAmount = length testSet
                                                 do  return $ printEpoch epochAmount correctCnt totalAmount
+                                                    writeIn newNetwork
                                                     manageTrainingEpoch (epochAmount - 1) trainingSet testSet newNetwork
 
 trainingEpoch :: [Sample] -> Data -> IO Data

@@ -12,6 +12,8 @@ main = do
 
 menu :: String -> IO String -- a decidir o tipo da IO Action
 menu option
-    | option == "exec" = execute
+    | option == "exec" = do answer <- execute
+                            putStrLn answer
+                            return ""
     | (head $ words option) == "train" = train $ read ((words option) !! 1)
     | otherwise = return ("Opcao invalida!")
